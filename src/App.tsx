@@ -13,10 +13,13 @@ function App() {
   const [soundType, setSoundType] = useState<string>(() => localStorage.getItem('soundType') || 'coin');
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 relative">
+    <div className="min-h-screen w-full bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 flex flex-col items-center relative">
       <SettingsModal settings={settings} onChange={setSettings} />
-      <h1 className="text-4xl font-bold mb-4 mt-8">薪跳</h1>
-      <p className="text-lg text-gray-600 mb-6">上班时间自动“可视化赚钱”的网页工具</p>
+      <div className="flex items-center gap-3 mt-12 mb-2">
+        <img src="/gold-coin.png" className="w-12 h-12 drop-shadow-lg" alt="logo" />
+        <h1 className="text-5xl font-extrabold text-yellow-500 tracking-wide drop-shadow">薪跳</h1>
+      </div>
+      <p className="text-lg text-yellow-700 mb-6">上班时间自动“可视化赚钱”的网页工具</p>
       <SoundToggle onChange={setSoundType} />
       {settings && <MoneyTicker settings={settings} soundType={soundType} />}
       <EggZone />

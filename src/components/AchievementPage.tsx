@@ -5,6 +5,7 @@ interface Settings {
   salary: number;
   workStart: string;
   workEnd: string;
+  workDuration?: string;
   workDays: number[];
 }
 
@@ -15,7 +16,9 @@ function getWorkHours(start: string, end: string) {
 }
 
 function getDaySalary(settings: Settings) {
-  const workHours = getWorkHours(settings.workStart, settings.workEnd);
+  const workHours = settings.workDuration !== '' && settings.workDuration !== undefined && !isNaN(Number(settings.workDuration))
+    ? Number(settings.workDuration)
+    : getWorkHours(settings.workStart, settings.workEnd);
   if (settings.salaryType === 'month') {
     return settings.salary / 21.75;
   } else if (settings.salaryType === 'hour') {
@@ -48,7 +51,10 @@ const AchievementPage = ({ settings }: { settings: Settings }) => {
     const now = today;
     if (now < start) return 0;
     if (now > end) return daySalary;
-    const workSeconds = (end.getTime() - start.getTime()) / 1000;
+    const workHours = settings.workDuration !== '' && settings.workDuration !== undefined && !isNaN(Number(settings.workDuration))
+      ? Number(settings.workDuration)
+      : getWorkHours(settings.workStart, settings.workEnd);
+    const workSeconds = workHours * 3600;
     const passedSeconds = (now.getTime() - start.getTime()) / 1000;
     return (daySalary * passedSeconds) / workSeconds;
   }, [settings, daySalary, today]);
@@ -69,11 +75,22 @@ const AchievementPage = ({ settings }: { settings: Settings }) => {
   }, [settings, daySalary, today]);
 
   return (
-    <div className="bg-white rounded shadow p-4 max-w-md mx-auto mt-8 text-center">
-      <h2 className="text-xl font-bold mb-4">数据与成就</h2>
-      <div className="mb-2 text-lg">今日累计收入：<span className="font-mono text-green-600">￥{todayEarned.toFixed(2)}</span></div>
-      <div className="mb-2 text-lg">本周累计收入：<span className="font-mono text-blue-600">￥{weekEarned.toFixed(2)}</span></div>
-      <div className="mb-2 text-lg">本月累计收入：<span className="font-mono text-purple-600">￥{monthEarned.toFixed(2)}</span></div>
+    <div className="bg-white/95 rounded-2xl shadow-xl p-6 my-6 max-w-md w-full border-2 border-yellow-200">
+      <h2 className="text-2xl font-extrabold text-yellow-600 mb-4">数据与成就</h2>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between text-lg">
+          <span>今日累计收入：</span>
+          <span className="font-mono text-yellow-600 font-bold">￥{todayEarned.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-lg">
+          <span>本周累计收入：</span>
+          <span className="font-mono text-yellow-500 font-bold">￥{weekEarned.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-lg">
+          <span>本月累计收入：</span>
+          <span className="font-mono text-yellow-400 font-bold">￥{monthEarned.toFixed(2)}</span>
+        </div>
+      </div>
     </div>
   );
 };

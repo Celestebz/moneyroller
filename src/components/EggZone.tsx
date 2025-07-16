@@ -30,23 +30,23 @@ const EggZone = () => {
 
   if (!visible) {
     return (
-      <button className="text-xs text-blue-400 underline mt-2" onClick={() => setVisible(true)}>
+      <button className="text-xs text-yellow-500 underline mt-2 hover:text-yellow-700" onClick={() => setVisible(true)}>
         显示摸鱼彩蛋区
       </button>
     );
   }
 
   return (
-    <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mt-4 max-w-md mx-auto text-center relative">
+    <div className="bg-gradient-to-r from-yellow-100 via-yellow-50 to-yellow-200 rounded-2xl shadow-lg p-4 my-4 max-w-md w-full flex flex-col items-center border border-yellow-300">
       <button
-        className="absolute right-2 top-2 text-xs text-gray-400 hover:text-gray-600"
+        className="absolute right-4 top-4 text-xs text-yellow-400 hover:text-yellow-700"
         onClick={() => setVisible(false)}
         title="隐藏"
       >
         隐藏
       </button>
-      <div className="text-lg font-semibold text-yellow-700 mb-2">摸鱼彩蛋区</div>
-      <div className="text-base text-yellow-800 animate-fade-in">
+      <div className="text-lg font-bold text-yellow-700 mb-1">摸鱼彩蛋区</div>
+      <div className="text-base text-yellow-800">
         {quote}
       </div>
     </div>

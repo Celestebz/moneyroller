@@ -5,6 +5,7 @@ interface Settings {
   salary: number;
   workStart: string;
   workEnd: string;
+  workDuration?: string;
   workDays: number[];
 }
 
@@ -28,9 +29,11 @@ function getTodayEarned(settings: Settings) {
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em, 0);
   if (now < start) return 0;
   if (now > end) return getTotalEarned(settings);
-  const workSeconds = (end.getTime() - start.getTime()) / 1000;
+  const workHours = settings.workDuration !== '' && settings.workDuration !== undefined && !isNaN(Number(settings.workDuration))
+    ? Number(settings.workDuration)
+    : getWorkHours(settings.workStart, settings.workEnd);
+  const workSeconds = workHours * 3600;
   const passedSeconds = (now.getTime() - start.getTime()) / 1000;
-  const workHours = getWorkHours(settings.workStart, settings.workEnd);
   let daySalary = settings.salary;
   if (settings.salaryType === 'month') {
     daySalary = settings.salary / 21.75;
@@ -41,7 +44,9 @@ function getTodayEarned(settings: Settings) {
 }
 
 function getTotalEarned(settings: Settings) {
-  const workHours = getWorkHours(settings.workStart, settings.workEnd);
+  const workHours = settings.workDuration !== '' && settings.workDuration !== undefined && !isNaN(Number(settings.workDuration))
+    ? Number(settings.workDuration)
+    : getWorkHours(settings.workStart, settings.workEnd);
   let daySalary = settings.salary;
   if (settings.salaryType === 'month') {
     daySalary = settings.salary / 21.75;
@@ -51,10 +56,9 @@ function getTotalEarned(settings: Settings) {
   return daySalary;
 }
 
-// 声效资源路径
+// 只保留coin声效
 const soundMap: Record<string, string> = {
   coin: '/src/assets/sounds/coin.mp3',
-  click: '/src/assets/sounds/click.mp3',
 };
 
 const MoneyTicker = ({ settings, soundType }: { settings: Settings; soundType: string }) => {
@@ -67,8 +71,7 @@ const MoneyTicker = ({ settings, soundType }: { settings: Settings; soundType: s
       const val = getTodayEarned(settings);
       setEarned(val);
       // 声效播放逻辑
-      if (soundType !== 'mute' && Math.floor(val * 100) !== Math.floor(prev.current * 100)) {
-        // 金额有跳动才播放
+      if (soundType === 'coin' && Math.floor(val * 100) !== Math.floor(prev.current * 100)) {
         if (audioRef.current) {
           audioRef.current.currentTime = 0;
           audioRef.current.play();
@@ -82,14 +85,14 @@ const MoneyTicker = ({ settings, soundType }: { settings: Settings; soundType: s
   }, [settings, soundType]);
 
   return (
-    <div className="flex flex-col items-center my-8">
-      <div className="text-2xl text-gray-500 mb-2">今日已赚</div>
-      <div className="text-5xl font-mono font-bold text-green-600 transition-all duration-500">
+    <div className="bg-white/90 rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center mb-6 border-4 border-yellow-200">
+      <div className="text-xl text-yellow-600 mb-2">今日已赚</div>
+      <div className="text-7xl font-extrabold font-mono bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-transparent bg-clip-text drop-shadow-lg transition-transform duration-300 ease-in-out transform hover:scale-105">
         ￥{earned.toFixed(2)}
       </div>
       {/* 声效播放器，隐藏 */}
-      {soundType !== 'mute' && (
-        <audio ref={audioRef} src={soundMap[soundType]} preload="auto" style={{ display: 'none' }} />
+      {soundType === 'coin' && (
+        <audio ref={audioRef} src={soundMap['coin']} preload="auto" style={{ display: 'none' }} />
       )}
     </div>
   );
