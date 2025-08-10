@@ -37,7 +37,7 @@ const EggZone = () => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-yellow-100 via-yellow-50 to-yellow-200 rounded-2xl shadow-lg p-4 my-4 max-w-md w-full flex flex-col items-center border border-yellow-300">
+    <div className="relative bg-gradient-to-r from-yellow-100 via-yellow-50 to-yellow-200 rounded-2xl shadow-lg p-4 my-4 max-w-md w-full flex flex-col items-center border border-yellow-300">
       <button
         className="absolute right-4 top-4 text-xs text-yellow-400 hover:text-yellow-700"
         onClick={() => setVisible(false)}
