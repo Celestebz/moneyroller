@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const defaultSettings = {
   salaryType: 'month', // 'month' | 'day' | 'hour'
@@ -17,10 +17,149 @@ function getTimeDiff(start: string, end: string) {
   return (eh + em/60) - (sh + sm/60);
 }
 
-function getWorkHours(settings: any) {
-  // 只用上午/下午分段
-  return getTimeDiff(settings.amStart, settings.amEnd) + getTimeDiff(settings.pmStart, settings.pmEnd);
-}
+        // 自定义24小时制时间选择器组件
+        function TimeInput({ value, onChange, placeholder }: { value: string, onChange: (time: string) => void, placeholder: string }) {
+          const [isOpen, setIsOpen] = useState(false);
+          const [tempValue, setTempValue] = useState(value);
+          const [selectedHour, setSelectedHour] = useState<string>('');
+          const [selectedMinute, setSelectedMinute] = useState<string>('');
+          const dropdownRef = useRef<HTMLDivElement>(null);
+
+          useEffect(() => {
+            setTempValue(value);
+            if (value) {
+              const [hour, minute] = value.split(':');
+              setSelectedHour(hour);
+              setSelectedMinute(minute);
+            }
+          }, [value]);
+
+          useEffect(() => {
+            function handleClickOutside(event: MouseEvent) {
+              if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+              }
+            }
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+          }, []);
+
+          const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+          const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+
+          const handleHourSelect = (hour: string) => {
+            setSelectedHour(hour);
+            if (selectedMinute) {
+              const newTime = `${hour}:${selectedMinute}`;
+              setTempValue(newTime);
+              onChange(newTime);
+            }
+          };
+
+          const handleMinuteSelect = (minute: string) => {
+            setSelectedMinute(minute);
+            if (selectedHour) {
+              const newTime = `${selectedHour}:${minute}`;
+              setTempValue(newTime);
+              onChange(newTime);
+              setIsOpen(false);
+            }
+          };
+
+          const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const input = e.target.value;
+            if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(input)) {
+              onChange(input);
+              const [hour, minute] = input.split(':');
+              setSelectedHour(hour);
+              setSelectedMinute(minute);
+            }
+            setTempValue(input);
+          };
+
+          return (
+            <div className="relative" ref={dropdownRef}>
+              <input
+                type="text"
+                value={tempValue}
+                onChange={handleInputChange}
+                onFocus={() => setIsOpen(true)}
+                placeholder={placeholder}
+                className="border rounded px-2 py-1 w-full text-center font-mono"
+                pattern="[0-9]{2}:[0-9]{2}"
+              />
+              {isOpen && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-2xl z-50 w-64">
+                  <div className="flex justify-between p-4">
+                    {/* 小时选择 */}
+                    <div className="text-center flex-1">
+                      <div className="relative">
+                        <div className="h-32 overflow-y-auto">
+                          <div className="space-y-1">
+                            {hours.map(hour => (
+                              <div
+                                key={hour}
+                                className={`h-8 flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
+                                  selectedHour === hour 
+                                    ? 'bg-blue-500 text-white font-bold' 
+                                    : 'hover:bg-gray-100'
+                                }`}
+                                onClick={() => handleHourSelect(hour)}
+                              >
+                                {hour}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 分隔线 */}
+                    <div className="w-px bg-gray-300 mx-2"></div>
+                    
+                    {/* 分钟选择 */}
+                    <div className="text-center flex-1">
+                      <div className="relative">
+                        <div className="h-32 overflow-y-auto">
+                          <div className="space-y-1">
+                            {minutes.map(minute => (
+                              <div
+                                key={minute}
+                                className={`h-8 flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
+                                  selectedMinute === minute 
+                                    ? 'bg-blue-500 text-white font-bold' 
+                                    : 'hover:bg-gray-100'
+                                }`}
+                                onClick={() => handleMinuteSelect(minute)}
+                              >
+                                {minute}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 确认按钮 */}
+                  <div className="border-t border-gray-300 p-3">
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                    >
+                      确认
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function getWorkHours(settings: any) {
+          // 只用上午/下午分段
+          return getTimeDiff(settings.amStart, settings.amEnd) + getTimeDiff(settings.pmStart, settings.pmEnd);
+        }
 
 function SalarySettings({ onChange, initial }: { onChange: (settings: any) => void, initial?: any }) {
   const [settings, setSettings] = useState(() => {
@@ -29,10 +168,12 @@ function SalarySettings({ onChange, initial }: { onChange: (settings: any) => vo
     return saved ? JSON.parse(saved) : defaultSettings;
   });
 
-  useEffect(() => {
-    localStorage.setItem('salarySettings', JSON.stringify(settings));
-    onChange(settings);
-  }, [settings, onChange]);
+          useEffect(() => {
+          localStorage.setItem('salarySettings', JSON.stringify(settings));
+          onChange(settings);
+        }, [settings, onChange]);
+
+
 
   // 工资换算
   const workHours = getWorkHours(settings);
@@ -56,6 +197,7 @@ function SalarySettings({ onChange, initial }: { onChange: (settings: any) => vo
 
   return (
     <div className="bg-white rounded shadow p-4 max-w-md mx-auto mt-2">
+
       <h2 className="text-xl font-bold mb-4">工资与时间设置</h2>
       <div className="mb-3 flex gap-2">
         <label>
@@ -82,27 +224,35 @@ function SalarySettings({ onChange, initial }: { onChange: (settings: any) => vo
       <div className="mb-3 flex flex-wrap gap-2">
         <div className="flex-1 min-w-[120px]">
           <label className="block text-sm">上午上班</label>
-          <input type="time" value={settings.amStart}
-            onChange={e => setSettings((s: any) => ({...s, amStart: e.target.value}))}
-            className="border rounded px-2 py-1 w-full" />
+          <TimeInput
+            value={settings.amStart}
+            onChange={(time) => setSettings((s: any) => ({...s, amStart: time}))}
+            placeholder="09:00"
+          />
         </div>
         <div className="flex-1 min-w-[120px]">
           <label className="block text-sm">上午下班</label>
-          <input type="time" value={settings.amEnd}
-            onChange={e => setSettings((s: any) => ({...s, amEnd: e.target.value}))}
-            className="border rounded px-2 py-1 w-full" />
+          <TimeInput
+            value={settings.amEnd}
+            onChange={(time) => setSettings((s: any) => ({...s, amEnd: time}))}
+            placeholder="12:00"
+          />
         </div>
         <div className="flex-1 min-w-[120px]">
           <label className="block text-sm">下午上班</label>
-          <input type="time" value={settings.pmStart}
-            onChange={e => setSettings((s: any) => ({...s, pmStart: e.target.value}))}
-            className="border rounded px-2 py-1 w-full" />
+          <TimeInput
+            value={settings.pmStart}
+            onChange={(time) => setSettings((s: any) => ({...s, pmStart: time}))}
+            placeholder="13:00"
+          />
         </div>
         <div className="flex-1 min-w-[120px]">
           <label className="block text-sm">下午下班</label>
-          <input type="time" value={settings.pmEnd}
-            onChange={e => setSettings((s: any) => ({...s, pmEnd: e.target.value}))}
-            className="border rounded px-2 py-1 w-full" />
+          <TimeInput
+            value={settings.pmEnd}
+            onChange={(time) => setSettings((s: any) => ({...s, pmEnd: time}))}
+            placeholder="18:00"
+          />
         </div>
       </div>
       <div className="mb-3">
