@@ -56,22 +56,20 @@ function getTimeDiff(start: string, end: string) {
           const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
 
           const handleHourSelect = (hour: string) => {
+            console.log('Hour selected:', hour);
             setSelectedHour(hour);
-            if (selectedMinute) {
-              const newTime = `${hour}:${selectedMinute}`;
-              setTempValue(newTime);
-              onChange(newTime);
-            }
+            const newTime = `${hour}:${selectedMinute || '00'}`;
+            setTempValue(newTime);
+            onChange(newTime);
           };
 
           const handleMinuteSelect = (minute: string) => {
+            console.log('Minute selected:', minute);
             setSelectedMinute(minute);
-            if (selectedHour) {
-              const newTime = `${selectedHour}:${minute}`;
-              setTempValue(newTime);
-              onChange(newTime);
-              setIsOpen(false);
-            }
+            const newTime = `${selectedHour || '00'}:${minute}`;
+            setTempValue(newTime);
+            onChange(newTime);
+            setIsOpen(false);
           };
 
           const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,8 +99,13 @@ function getTimeDiff(start: string, end: string) {
               />
               {isOpen && (
                 <div 
-                  className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-2xl z-[9999] w-64"
-                  style={{ position: 'absolute', zIndex: 9999 }}
+                  className="fixed bg-white border border-gray-300 rounded-lg shadow-2xl z-[99999] w-64"
+                  style={{ 
+                    position: 'fixed', 
+                    zIndex: 99999,
+                    top: dropdownRef.current ? dropdownRef.current.getBoundingClientRect().bottom + 5 : 0,
+                    left: dropdownRef.current ? dropdownRef.current.getBoundingClientRect().left : 0
+                  }}
                 >
                   <div className="flex justify-between p-4">
                     {/* 小时选择 */}
@@ -111,22 +114,18 @@ function getTimeDiff(start: string, end: string) {
                         <div className="h-32 overflow-y-auto">
                           <div className="space-y-1">
                             {hours.map(hour => (
-                              <div
+                              <button
                                 key={hour}
-                                className={`h-8 flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
+                                type="button"
+                                className={`h-8 w-full flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
                                   selectedHour === hour 
                                     ? 'bg-blue-500 text-white font-bold' 
                                     : 'hover:bg-gray-100'
                                 }`}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  console.log('Hour clicked:', hour); // 调试信息
-                                  handleHourSelect(hour);
-                                }}
+                                onClick={() => handleHourSelect(hour)}
                               >
                                 {hour}
-                              </div>
+                              </button>
                             ))}
                           </div>
                         </div>
@@ -142,22 +141,18 @@ function getTimeDiff(start: string, end: string) {
                         <div className="h-32 overflow-y-auto">
                           <div className="space-y-1">
                             {minutes.map(minute => (
-                              <div
+                              <button
                                 key={minute}
-                                className={`h-8 flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
+                                type="button"
+                                className={`h-8 w-full flex items-center justify-center text-gray-800 text-lg font-mono cursor-pointer rounded transition-all ${
                                   selectedMinute === minute 
                                     ? 'bg-blue-500 text-white font-bold' 
                                     : 'hover:bg-gray-100'
                                 }`}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  console.log('Minute clicked:', minute); // 调试信息
-                                  handleMinuteSelect(minute);
-                                }}
+                                onClick={() => handleMinuteSelect(minute)}
                               >
                                 {minute}
-                              </div>
+                              </button>
                             ))}
                           </div>
                         </div>
