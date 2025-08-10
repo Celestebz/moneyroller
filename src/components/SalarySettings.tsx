@@ -23,6 +23,7 @@ function getTimeDiff(start: string, end: string) {
           const [tempValue, setTempValue] = useState(value);
           const [selectedHour, setSelectedHour] = useState<string>('');
           const [selectedMinute, setSelectedMinute] = useState<string>('');
+          const [forceUpdate, setForceUpdate] = useState(0); // 强制重新渲染
           const dropdownRef = useRef<HTMLDivElement>(null);
 
           useEffect(() => {
@@ -40,8 +41,15 @@ function getTimeDiff(start: string, end: string) {
                 setIsOpen(false);
               }
             }
+            
+            // 同时监听 mousedown 和 touchstart 事件，确保在移动端和生产环境都能工作
             document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+            
+            return () => {
+              document.removeEventListener('mousedown', handleClickOutside);
+              document.removeEventListener('touchstart', handleClickOutside);
+            };
           }, []);
 
           const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
@@ -83,13 +91,19 @@ function getTimeDiff(start: string, end: string) {
                 type="text"
                 value={tempValue}
                 onChange={handleInputChange}
-                onFocus={() => setIsOpen(true)}
+                onFocus={() => {
+                  console.log('Input focused, opening dropdown'); // 调试信息
+                  setIsOpen(true);
+                }}
                 placeholder={placeholder}
                 className="border rounded px-2 py-1 w-full text-center font-mono"
                 pattern="[0-9]{2}:[0-9]{2}"
               />
               {isOpen && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-2xl z-50 w-64">
+                <div 
+                  className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-2xl z-[9999] w-64"
+                  style={{ position: 'absolute', zIndex: 9999 }}
+                >
                   <div className="flex justify-between p-4">
                     {/* 小时选择 */}
                     <div className="text-center flex-1">
@@ -104,7 +118,12 @@ function getTimeDiff(start: string, end: string) {
                                     ? 'bg-blue-500 text-white font-bold' 
                                     : 'hover:bg-gray-100'
                                 }`}
-                                onClick={() => handleHourSelect(hour)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('Hour clicked:', hour); // 调试信息
+                                  handleHourSelect(hour);
+                                }}
                               >
                                 {hour}
                               </div>
@@ -130,7 +149,12 @@ function getTimeDiff(start: string, end: string) {
                                     ? 'bg-blue-500 text-white font-bold' 
                                     : 'hover:bg-gray-100'
                                 }`}
-                                onClick={() => handleMinuteSelect(minute)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('Minute clicked:', minute); // 调试信息
+                                  handleMinuteSelect(minute);
+                                }}
                               >
                                 {minute}
                               </div>
