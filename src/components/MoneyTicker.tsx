@@ -86,7 +86,7 @@ function getTotalEarned(settings: Settings) {
 
 // 只保留coin声效
 const soundMap: Record<string, string> = {
-  coin: '/src/assets/sounds/coin.mp3',
+  coin: '/coin.mp3',
 };
 
 const MoneyTicker = ({ settings, soundType }: { settings: Settings; soundType: string }) => {
@@ -101,8 +101,12 @@ const MoneyTicker = ({ settings, soundType }: { settings: Settings; soundType: s
       // 声效播放逻辑
       if (soundType === 'coin' && Math.floor(val * 100) !== Math.floor(prev.current * 100)) {
         if (audioRef.current) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play();
+          try {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(err => console.log('声效播放失败:', err));
+          } catch (err) {
+            console.log('声效播放错误:', err);
+          }
         }
       }
       prev.current = val;

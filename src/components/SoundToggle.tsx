@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const SOUND_OPTIONS = [
-  { label: '金币声', value: 'coin', icon: '🪙' },
+  { label: '金币声', value: 'coin', icon: '💰' },
   { label: '静音', value: 'mute', icon: '🔇' },
 ];
 
