@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiSettings } from 'react-icons/fi';
 import SalarySettings from './SalarySettings';
 
 const modalRootStyle = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30';
@@ -31,7 +30,7 @@ function SettingsModal({ settings, onChange }: { settings: any, onChange: (s: an
         onClick={() => setOpen(true)}
         title="设置"
       >
-        <FiSettings size={24} />
+        <span className="text-2xl">⚙️</span>
       </button>
       {/* 弹窗 */}
       {open && (
