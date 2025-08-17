@@ -8,7 +8,25 @@ import AchievementPage from './components/AchievementPage';
 function App() {
   const [settings, setSettings] = useState<any>(() => {
     const saved = localStorage.getItem('salarySettings');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // 确保所有必需的时间字段都有默认值
+        return {
+          salaryType: parsed.salaryType || 'month',
+          salary: parsed.salary || 10000,
+          amStart: parsed.amStart || '',
+          amEnd: parsed.amEnd || '',
+          pmStart: parsed.pmStart || '',
+          pmEnd: parsed.pmEnd || '',
+          workDays: parsed.workDays || [1,2,3,4,5],
+        };
+      } catch (e) {
+        console.error('解析localStorage数据失败:', e);
+        return null;
+      }
+    }
+    return null;
   });
   const [soundType, setSoundType] = useState<string>(() => localStorage.getItem('soundType') || 'coin');
 

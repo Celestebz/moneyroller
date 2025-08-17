@@ -4,6 +4,9 @@ function SettingsModal({ settings, onChange }: { settings: any, onChange: (s: an
   const [open, setOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // 安全地处理settings，确保不是null或undefined
+  const safeSettings = settings || {};
+
   // 关闭弹窗：点击遮罩或ESC
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -18,7 +21,7 @@ function SettingsModal({ settings, onChange }: { settings: any, onChange: (s: an
   }
 
   // 添加调试信息
-  console.log('SettingsModal render:', { open, settings });
+  console.log('SettingsModal render:', { open, settings: safeSettings });
 
   return (
     <>
