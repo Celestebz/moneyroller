@@ -11,7 +11,7 @@ interface Settings {
 }
 
 function getTimeDiff(start: string, end: string) {
-  if (!start || !end) return 0;
+  if (!start || !end || !start.trim() || !end.trim()) return 0;
   const [sh, sm] = start.split(':').map(Number);
   const [eh, em] = end.split(':').map(Number);
   return (eh + em/60) - (sh + sm/60);
@@ -31,10 +31,10 @@ function getTodayEarned(settings: Settings) {
   const now = new Date();
   
   // 计算上午和下午的工作时间
-  const amStart = settings.amStart ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.amStart.split(':').map(Number), 0) : null;
-  const amEnd = settings.amEnd ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.amEnd.split(':').map(Number), 0) : null;
-  const pmStart = settings.pmStart ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.pmStart.split(':').map(Number), 0) : null;
-  const pmEnd = settings.pmEnd ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.pmEnd.split(':').map(Number), 0) : null;
+  const amStart = settings.amStart && settings.amStart.trim() ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.amStart.split(':').map(Number), 0) : null;
+  const amEnd = settings.amEnd && settings.amEnd.trim() ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.amEnd.split(':').map(Number), 0) : null;
+  const pmStart = settings.pmStart && settings.pmStart.trim() ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.pmStart.split(':').map(Number), 0) : null;
+  const pmEnd = settings.pmEnd && settings.pmEnd.trim() ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...settings.pmEnd.split(':').map(Number), 0) : null;
   
   // 如果没有设置时间，返回0
   if (!amStart || !amEnd || !pmStart || !pmEnd) return 0;
