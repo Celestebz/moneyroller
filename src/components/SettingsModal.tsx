@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import SalarySettings from './SalarySettings';
 
 function SettingsModal({ settings, onChange }: { settings: any, onChange: (s: any) => void }) {
   const [open, setOpen] = useState(false);
@@ -53,16 +54,7 @@ function SettingsModal({ settings, onChange }: { settings: any, onChange: (s: an
               ×
             </span>
             <h2 className="text-xl font-bold mb-4 text-center">设置</h2>
-            <div className="text-center p-4">
-              <p>这是一个测试弹窗</p>
-              <p>如果你能看到这个，说明弹窗功能正常</p>
-              <button 
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() => setOpen(false)}
-              >
-                关闭
-              </button>
-            </div>
+            <SalarySettings onChange={onChange} initial={safeSettings} />
           </div>
         </div>
       )}
